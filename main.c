@@ -145,7 +145,7 @@ void print_mat(Matrix* mat) {
     for (i = 0; i < n; i++) {
         for (j = 0; j < m; j++) {
             if (((mat->array[i][j]) > -0.00005) && (mat->array[i][j] <= 0)) {
-                printf("%.4f", 0);
+                printf("%.4f", 0.0);
             } else {
                 printf("%.4f", mat->array[i][j]);
             }
@@ -457,19 +457,18 @@ Matrix data_to_matrix(Data* data){
 /*********************************************************************************/
 /************************   Algorithm Related Functions  ****************************/
 /*********************************************************************************/
-
+void print_array(double*, int);
 /**
  * Calculates the L2 norm of a single point
  * point - an array of size n
  */
 double l2_norm(double* point, int n) {
-    int i;
-    double sum =0;
-    double value;
-
-    for (i=0; i<n ; i++){
+    int i = 0;
+    double sum = 0;
+    double value = 0;
+    for (i=0; i<n; i++){
         value = point[i];
-        value = pow(value,2);
+        value = value * value;
         sum += value;
     }
     return sqrt(sum);
@@ -493,13 +492,13 @@ double l2_dist(double* point1, double* point2, int n){
 
     return value;
 }
-
+void print_array(double*, int);
 /**
  * Normalize rows of matrix U in place, according to their l2 norm
  */
 void normalize_rows(Matrix* U) {
     int i = 0, j = 0;
-    int norm_factor = 1;
+    float norm_factor = 1;
     for (i = 0; i < U->n; i++) {
         norm_factor = l2_norm(U->array[i], U->m);
         for (j = 0; j < U->m; j++) {
@@ -677,28 +676,30 @@ void free_eigen(Eigen* eigen){
 /*Calculate A_prime according to the definition in project based on indices (not matrix multiplication)*/
 Matrix calc_A_prime(Matrix* A){
 
-
     /*Initialize Parameters*/
+    int i, j, r;
+    Matrix A_prime;
+    Index idx;
     int n = A->n;
     int m = A->m;
+    double **a_prime, **a;
+    double theta, t, c, s;
     assert(n==m);
-    int r;
-    Matrix A_prime = mat_copy(A);
-    double** a_prime = A_prime.array;
-
+    A_prime = mat_copy(A);
+    a_prime = A_prime.array;
 
     /*find the index of the largest off diagonal element*/
-    Index idx = off_diagonal_index(A);
-    int i = idx.x;
-    int j = idx.y;
-    double** a = A->array;
+    idx = off_diagonal_index(A);
+    i = idx.x;
+    j = idx.y;
+    a = A->array;
 
 
     /*Calculate Values of theta, c, s, t*/
-    double theta = (a[j][j] - a[i][i]) / (2.0 * a[i][j]);
-    double t = sign(theta)/ (fabs(theta) + sqrt(theta*theta +1));
-    double c = 1 / sqrt(t*t+1);
-    double s = t*c;
+    theta = (a[j][j] - a[i][i]) / (2.0 * a[i][j]);
+    t = sign(theta)/ (fabs(theta) + sqrt(theta*theta +1));
+    c = 1 / sqrt(t*t+1);
+    s = t*c;
 
     /*Update Matrix as needed*/
     for (r=0; r<n; r++){
@@ -779,7 +780,7 @@ Eigen vecs_to_eigen(EigenVec* vecs, int n) {
     /* Iterating the vectors and writing them to the matrix */
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++) {
-            sorted_eigenmat.array[i][j] = vecs[i].vector[j];
+            sorted_eigenmat.array[j][i] = vecs[i].vector[j];
         }
         eigen.eigvals[i] = vecs[i].value;
     }
@@ -860,7 +861,7 @@ Eigen sort_eigen(Eigen* eigen) {
 }
 
 Eigen jacobi_algorithm(Matrix* mat){
-    Eigen eigen, sorted;
+    Eigen eigen; /*, sorted; */
     int n = mat->n;
     int i;
     /* Calculate A, A', P, V (Initialized) */
@@ -872,9 +873,7 @@ Eigen jacobi_algorithm(Matrix* mat){
     double diff = off(&A) - off(&A_prime);
     int c =0;
 
-
     while (diff> EPSILON && c<MAX_JACOBI_ITER){
-
 
         /* printf("Jacobi Iteration number %d.| diff is %f|off(A') =  %f\n",c,diff,off(&A_prime)); */
         /* Free What needs to be Free */
@@ -904,11 +903,11 @@ Eigen jacobi_algorithm(Matrix* mat){
     eigen.eigvects = V;
     eigen.n = n;
     
-    //sorted = sort_eigen(&eigen);
+    /*sorted = sort_eigen(&eigen);*
 
-    //free_eigen(&eigen);
+    free_eigen(&eigen);
 
-    //return sorted;
+    return sorted;*/
 
     return eigen;
 }
@@ -971,29 +970,25 @@ bool did_converge(Matrix *prior_centroids, Matrix *centroids) {
 }
 
 /**
- * Update centroids in place, according to k-means update rule
+ * Create new centroids, according to k-means update rule
  * data - points in the dataset
- * centroids - the former centroids
  * point_assignments - assignment of point i to centroid point_assignments[i]
  * assignment_count - number of assigned points to centroid i
  */
-void update_centroids(Matrix *data, Matrix *centroids, int* point_assignments, int* assignment_count) {
+Matrix update_centroids(Matrix *data, int* point_assignments, int* assignment_count) {
+    Matrix new_centroids;
     int i, j, centroid_idx;
-
-    /* set all points to zero */
-    for (i = 0; i < centroids->n; i++) {
-        for (j = 0; j < centroids->m; j++) {
-            centroids->array[i][j] = 0;
-        }
-    }
+    new_centroids = zeros(data->m, data->m);
 
     /* update centroids */
     for (i = 0; i < data->n; i++) {
         centroid_idx = point_assignments[i];
-        for (j = 0; j < centroids->m; j++) {
-            centroids->array[centroid_idx][j] = data->array[i][j] / assignment_count[centroid_idx];
+        for (j = 0; j < new_centroids.m; j++) {
+            new_centroids.array[centroid_idx][j] += data->array[i][j] / assignment_count[centroid_idx];
         }
     }
+
+    return new_centroids;
 }
 
 /**
@@ -1020,40 +1015,43 @@ int assign_point_centroids(double* vector, Matrix* centroids) {
 
 /**
  * Converge given centroids(k,k) to match rows of data(n*m) as best as possible in place
- * centroids - matrix of size (k,k)
+ * init_centroids - matrix of size (k,k)
  * data - matrix of size (n,k), each row is a point in data
  */
-Matrix converge_centroids(Matrix *data, Matrix *centroids) {
-    Matrix prior_centroids = mat_copy(centroids);
-    int* point_assignment = calloc(data->n, sizeof(int));
-    int* assignment_count = calloc(centroids->n, sizeof(int));
+Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
+    Matrix centroids, prior_centroids = mat_copy(init_centroids);
+    int* point_assignment;
+    int* assignment_count;
     int i, j, centroid_idx;
-    assert(point_assignment != NULL);
-    assert(assignment_count != NULL);
     
     for (i = 0; i < MAX_ITER; i++) {
+
+        point_assignment = calloc(data->n, sizeof(int));
+        assignment_count = calloc(prior_centroids.n, sizeof(int));
+        assert(point_assignment != NULL);
+        assert(assignment_count != NULL);
         
         /* assign a closest centroid to each data point */
         for (j = 0; j < data->n; j++) {
-            centroid_idx = assign_point_centroids(data->array[j], centroids);
+            centroid_idx = assign_point_centroids(data->array[j], &prior_centroids);
             point_assignment[j] = centroid_idx;
             assignment_count[centroid_idx]++;
         }
-        free_mat(&prior_centroids);
-        prior_centroids = mat_copy(centroids);
-        update_centroids(data, centroids, point_assignment, assignment_count);
 
+        centroids = update_centroids(data, point_assignment, assignment_count);
+
+        free(assignment_count);
+        free(point_assignment);
         /* if the centroids converged - stop regression */
-        if (did_converge(&prior_centroids, centroids)) {
+        if (did_converge(&prior_centroids, &centroids)) {
             break;
         }
+
+        free_mat(&prior_centroids);
+        prior_centroids = centroids;
     }
 
-    free(point_assignment);
-    free(assignment_count);
-    
-
-    return *centroids;
+    return centroids;
 }
 
 /**
@@ -1064,14 +1062,14 @@ Matrix init_centroids(Matrix *data, int k) {
 }
 
 Matrix get_points(Matrix *data, int k) {
-    return mat_window_copy(data, 0, data->n, 0, k+1);
+    return mat_window_copy(data, 0, data->n, 0, k + 1);
 }
 
 void print_array(double* array, int n) {
     int i = 0;
     for (i = 0; i < n; i++) {
         if (((array[i] )>-0.00005) &&(array[i]<=0)){
-            printf("%.4f",0);
+            printf("%.4f",0.0);
         }
         else{
             printf("%.4f", array[i]);
@@ -1403,8 +1401,8 @@ int main(int argc, char** argv){
     int k = atoi(argv[1]);
     char *str_goal = argv[2];
     char *data_path = argv[3];
-    Matrix W, D, D_half, L, points, centroids,mat_data,transposed;
-    Eigen eigen,sorted;
+    Matrix W, D, D_half, L, points, centroids, mat_data, transposed;
+    Eigen eigen, sorted;
     goal goal = translate_goal(str_goal);
     Data data = load_data(data_path);
     assert(goal < other);
@@ -1422,27 +1420,24 @@ int main(int argc, char** argv){
         L = laplacian(&D_half, &W);
     }
     if (goal >= jacobi) {
-        if (goal == jacobi){
-            mat_data = data_to_matrix(&data);
-            eigen = jacobi_algorithm(&mat_data);
-        }
-        else{
-            eigen = jacobi_algorithm(&L);
+        eigen = jacobi_algorithm(&L);
+        /*eigen.eigvects = transpose(&eigen.eigvects);*/
 
+        if (goal > jacobi) {
             /*Sort Eigen Values and Eigen Vectors if goal==spk*/
             sorted = sort_eigen(&eigen);
             free_eigen(&eigen);
             eigen = sorted;
         }
-
-
     }
+
     if (goal >= spk) {
         assert(k >= 0 && k<data.n);
         if (k == 0) {
             k = calc_eigengap_heuristic(&eigen);
         }
         points = get_points(&(eigen.eigvects), k);
+        normalize_rows(&points);
         centroids = init_centroids(&(eigen.eigvects), k);
         centroids = converge_centroids(&points, &centroids);
     }
@@ -1463,8 +1458,8 @@ int main(int argc, char** argv){
                 print_mat(&transposed);
                 break;
         case spk:
-                /*printf("%d\n", k);*/
-                /*printf("\n");*/
+                /*print_array(eigen.eigvals, eigen.n);
+                print_mat(&eigen.eigvects);*/
                 print_mat(&centroids);
                 break;
         case other: printf("Recieved bad goal. Exitting program.");
