@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import spkmenas
-import create_random_tests
 import os
 import time
 import subprocess
@@ -127,7 +126,7 @@ def create_random_test(n,m):
     mat = np.random.uniform(-10,10,(n,m))
     mat = (np.round(mat*10**5))/10**5
     df = pd.DataFrame(mat)
-    df.to_csv(r"C:\Users\Tomer\CLionProjects\spectral_k_means\tests\input.txt", header = None,index = False )
+    df.to_csv(r"C:\Users\Tomer\CLionProjects\SpectralKMeans-new\SpectralKMeans\tests\input.txt", header = None,index = False )
 
 
 
@@ -150,7 +149,15 @@ def repeated_test(iter, stop_error =False):
             return None
         input("Press anything to continue")
 
+def create_symmetric_matrix(n,m):
+    mat = (np.random.rand(n,n)-1)*10
+    mat = np.round(mat*10**5)/10**5
+    df = pd.DataFrame(mat)
+    for i in range(mat.shape[0]):
+        for j in range (mat.shape[1]):
+            mat[i,j] = mat[j,i]
+    df.to_csv("input.txt", header = None,index = False )
 
 
 if __name__== '__main__':
-    repeated_test(10)
+    create_symmetric_matrix(10,10)
