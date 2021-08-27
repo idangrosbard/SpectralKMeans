@@ -439,6 +439,19 @@ double* data_get_col (Data* data, int j){
     return col;
 }
 
+Matrix data_to_matrix(Data* data){
+    int n = data->n;
+    int m = data->m;
+    int i,j;
+    Matrix mat = zeros(n,m);
+    for (i=0;i<n;i++){
+        for (j=0;j<m;j++){
+            mat.array[i][j] =data->array[i][j];
+        }
+    }
+    return mat;
+}
+
 /*********************************************************************************/
 /************************   Algorithm Related Functions  ****************************/
 /*********************************************************************************/
@@ -659,36 +672,45 @@ void free_eigen(Eigen* eigen){
     free(eigen->eigvals);
 }
 
-/* Calculate A_prime according to the definition in project based on indices (not matrix multiplication) */
+/*Calculate A_prime according to the definition in project based on indices (not matrix multiplication)*/
 Matrix calc_A_prime(Matrix* A){
-    /* Initialize variables */
-    double** arr = A->array;
-    int n = A->n;
-    Matrix A_prime = mat_copy(A);
-    int r;
 
-    /* find the index of the largest off diagonal element */
+
+    /*Initialize Parameters*/
+    int n = A->n;
+    int m = A->m;
+    assert(n==m);
+    int r;
+    Matrix A_prime = mat_copy(A);
+    double** a_prime = A_prime.array;
+
+
+    /*find the index of the largest off diagonal element*/
     Index idx = off_diagonal_index(A);
     int i = idx.x;
     int j = idx.y;
+    double** a = A->array;
 
 
-    /* Calculate Values of theta, c, s, t */
-    double theta = (arr[j][j] - arr[i][i])/(2.0 *arr[i][j]);
+    /*Calculate Values of theta, c, s, t*/
+    double theta = (a[j][j] - a[i][i]) / (2.0 * a[i][j]);
     double t = sign(theta)/ (fabs(theta) + sqrt(theta*theta +1));
     double c = 1 / sqrt(t*t+1);
     double s = t*c;
 
-    for (r =0; r<n; r++){
+    /*Update Matrix as needed*/
+    for (r=0; r<n; r++){
         if (r!=i && r!=j){
-            A_prime.array[r][i] = c * arr[r][i] - s * arr[r][j];
-            A_prime.array[r][j] = c * arr[r][j] + s* arr [r][i];
+            a_prime[r][i] = c * a[r][i] - s*a[r][j];
+            a_prime[i][r] = a_prime[r][i];
+            a_prime[r][j] = c*a[r][j] + s*a[r][i];
+            a_prime[j][r] = a_prime[r][j];
         }
     }
-    A_prime.array[i][i] = c*c*arr[i][i] + s*s*arr[j][j] - 2*s*c*arr[i][j];
-    A_prime.array[j][j] = s*s*arr[i][i] + c*c*arr[j][j] + 2*s*c*arr[i][j];
-    A_prime.array[i][j] = 0;
-    A_prime.array[j][i] = 0;
+    a_prime[i][i] = c*c*a[i][i] +s*s*a[j][j] - 2*s*c*a[i][j];
+    a_prime[j][j] = s*s*a[i][i] +c*c*a[j][j] + 2*s*c*a[i][j];
+    a_prime[i][j] = 0;
+    a_prime[j][i] = 0;
 
     return A_prime;
 }
@@ -1372,7 +1394,7 @@ int main(int argc, char** argv){
     int k = atoi(argv[1]);
     char *str_goal = argv[2];
     char *data_path = argv[3];
-    Matrix W, D, D_half, L, points, centroids;
+    Matrix W, D, D_half, L, points, centroids,mat_data;
     Eigen eigen;
     goal goal = translate_goal(str_goal);
     Data data = load_data(data_path);
@@ -1391,10 +1413,18 @@ int main(int argc, char** argv){
         L = laplacian(&D_half, &W);
     }
     if (goal >= jacobi) {
-        eigen = jacobi_algorithm(&L);
+        if (goal == jacobi){
+            mat_data = data_to_matrix(&data);
+            eigen = jacobi_algorithm(&mat_data);
+        }
+        else{
+            eigen = jacobi_algorithm(&L);
+        }
+
+
     }
     if (goal >= spk) {
-        assert(k >= 0);
+        assert(k >= 0 && k<data.n);
         if (k == 0) {
             k = calc_eigengap_heuristic(&eigen);
         }
@@ -1435,6 +1465,9 @@ int main(int argc, char** argv){
     }
     if (goal >= jacobi) {
         free_eigen(&eigen);
+        if (goal==jacobi){
+            free_mat(&mat_data);
+        }
     }
     if (goal >= lnorm) {
         free_mat(&L);
