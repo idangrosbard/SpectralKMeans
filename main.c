@@ -873,7 +873,7 @@ Eigen jacobi_algorithm(Matrix* mat){
     int c =0;
 
 
-    while (diff> EPSILON && c<MAX_JACOBI_ITER){
+    while (diff> EPSILON && c<MAX_JACOBI_ITER-1){
 
 
         /* printf("Jacobi Iteration number %d.| diff is %f|off(A') =  %f\n",c,diff,off(&A_prime)); */
