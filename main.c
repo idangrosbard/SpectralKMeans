@@ -6,7 +6,7 @@
 #define MAX_POINTS 1000
 #define MAX_DIMS  10
 #define LINE_LENGTH 1024
-#define EPSILON 0.001
+#define EPSILON 1e-15
 #define MAX_JACOBI_ITER 100
 #define MAX_ITER 300
 
@@ -139,19 +139,21 @@ void free_mat(Matrix *mat) {
 /* Prints Matrix in format (separated by commas and each point in a new line) */
 void print_mat(Matrix* mat) {
     int i, j;
-    int n= mat->n;
-    int m= mat->m;
+    int n = mat->n;
+    int m = mat->m;
 
     for (i = 0; i < n; i++) {
         for (j = 0; j < m; j++) {
-            printf("%.4f", mat->array[i][j]);
-            if (j != m - 1) {
+            if (((mat->array[i][j]) > -0.00005) && (mat->array[i][j] <= 0)) {
+                printf("%.4f", 0);
+            } else {
+                printf("%.4f", mat->array[i][j]);
+            }
+            if (j != n - 1) {
                 printf(",");
             }
         }
-        if (i != n-1) {
-            printf("\n");
-        }
+        printf("\n");
     }
 }
 
@@ -902,11 +904,13 @@ Eigen jacobi_algorithm(Matrix* mat){
     eigen.eigvects = V;
     eigen.n = n;
     
-    sorted = sort_eigen(&eigen);
+    //sorted = sort_eigen(&eigen);
 
-    free_eigen(&eigen);
+    //free_eigen(&eigen);
 
-    return sorted;
+    //return sorted;
+
+    return eigen;
 }
 
 
@@ -1066,7 +1070,12 @@ Matrix get_points(Matrix *data, int k) {
 void print_array(double* array, int n) {
     int i = 0;
     for (i = 0; i < n; i++) {
-        printf("%f", array[i]);
+        if (((array[i] )>-0.00005) &&(array[i]<=0)){
+            printf("%.4f",0);
+        }
+        else{
+            printf("%.4f", array[i]);
+        }
         if (i != n - 1) {
             printf(",");
         }
@@ -1394,8 +1403,8 @@ int main(int argc, char** argv){
     int k = atoi(argv[1]);
     char *str_goal = argv[2];
     char *data_path = argv[3];
-    Matrix W, D, D_half, L, points, centroids,mat_data;
-    Eigen eigen;
+    Matrix W, D, D_half, L, points, centroids,mat_data,transposed;
+    Eigen eigen,sorted;
     goal goal = translate_goal(str_goal);
     Data data = load_data(data_path);
     assert(goal < other);
@@ -1419,6 +1428,11 @@ int main(int argc, char** argv){
         }
         else{
             eigen = jacobi_algorithm(&L);
+
+            /*Sort Eigen Values and Eigen Vectors if goal==spk*/
+            sorted = sort_eigen(&eigen);
+            free_eigen(&eigen);
+            eigen = sorted;
         }
 
 
@@ -1430,7 +1444,6 @@ int main(int argc, char** argv){
         }
         points = get_points(&(eigen.eigvects), k);
         centroids = init_centroids(&(eigen.eigvects), k);
-        
         centroids = converge_centroids(&points, &centroids);
     }
 
@@ -1443,14 +1456,15 @@ int main(int argc, char** argv){
         case lnorm: print_mat(&L);
                 break;
         case jacobi:
-                printf("eigenvalues:");
+                /*printf("eigenvalues:");*/
                 print_array(eigen.eigvals, eigen.n);
-                printf("eigenvectors:");
-                print_mat(&(eigen.eigvects));
+                /*printf("eigenvectors:");*/
+                transposed = transpose(&eigen.eigvects);
+                print_mat(&transposed);
                 break;
         case spk:
-                printf("%d\n", k);
-                printf("\n");
+                /*printf("%d\n", k);*/
+                /*printf("\n");*/
                 print_mat(&centroids);
                 break;
         case other: printf("Recieved bad goal. Exitting program.");
