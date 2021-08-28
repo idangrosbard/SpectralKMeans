@@ -458,11 +458,11 @@ Matrix data_to_matrix(Data* data){
 /************************   Algorithm Related Functions  ****************************/
 /*********************************************************************************/
 void print_array(double*, int);
+
 /**
- * Calculates the L2 norm of a single point
- * point - an array of size n
+ * returns the l2 norm squared of point of dimension n
  */
-double l2_norm(double* point, int n) {
+double l2_norm_sqr(double* point, int n) {
     int i = 0;
     double sum = 0;
     double value = 0;
@@ -471,11 +471,22 @@ double l2_norm(double* point, int n) {
         value = value * value;
         sum += value;
     }
+
+    return sum;
+}
+/**
+ * Calculates the L2 norm of a single point
+ * point - an array of size n
+ */
+double l2_norm(double* point, int n) {
+    double sum = l2_norm_sqr(point, n);
     return sqrt(sum);
 }
 
-/* returns the l2 distance of 2 points (point1, point2) */
-double l2_dist(double* point1, double* point2, int n){
+/**
+ * returns the l2 distance squared of 2 points (point1, point2) of dimension n
+ */
+double l2_dist_sqr(double* point1, double* point2, int n) {
     int i;
     double* delta;
     double value;
@@ -486,12 +497,19 @@ double l2_dist(double* point1, double* point2, int n){
         delta[i] = point1[i] - point2[i];
     }
 
-    value = l2_norm(delta, n);
+    value = l2_norm_sqr(delta, n);
 
     free(delta);
 
     return value;
 }
+
+/* returns the l2 distance of 2 points (point1, point2) */
+double l2_dist(double* point1, double* point2, int n){
+    return sqrt(l2_dist_sqr(point1, point2, n));
+}
+
+
 void print_array(double*, int);
 /**
  * Normalize rows of matrix U in place, according to their l2 norm
@@ -999,10 +1017,9 @@ Matrix update_centroids(Matrix *data, int* point_assignments, int* assignment_co
 int assign_point_centroids(double* vector, Matrix* centroids) {
     int i, min_l2_centroid_idx = -1;
     double min_l2, l2;
-    
     /* for every centroid, check the distance from the vector to the centroid */
     for (i = 0; i < centroids->n; i++) {
-        l2 = l2_dist(vector, centroids->array[i], centroids->m);
+        l2 = l2_dist_sqr(vector, centroids->array[i], centroids->m);
         /* if the centroid is closer than the former closest centroid (or there wasn't a closest vector) */
         /* set this centroid as closest */
         if ((min_l2_centroid_idx < 0) || (l2 < min_l2)) {
@@ -1024,6 +1041,8 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
     int* point_assignment;
     int* assignment_count;
     int i, j, centroid_idx;
+    /*printf("init:\n");
+    print_mat(&prior_centroids);*/
     
     for (i = 0; i < MAX_ITER; i++) {
 
@@ -1038,7 +1057,7 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
             point_assignment[j] = centroid_idx;
             assignment_count[centroid_idx]++;
         }
-
+        
         centroids = update_centroids(data, point_assignment, assignment_count);
 
         free(assignment_count);
@@ -1059,11 +1078,11 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
  * Get initial k centroids (first k points in vector)
  */
 Matrix init_centroids(Matrix *data, int k) {
-    return mat_window_copy(data, 0, k + 1, 0, k + 1);
+    return mat_window_copy(data, 0, k, 0, k);
 }
 
 Matrix get_points(Matrix *data, int k) {
-    return mat_window_copy(data, 0, data->n, 0, k + 1);
+    return mat_window_copy(data, 0, data->n, 0, k);
 }
 
 void print_array(double* array, int n) {
@@ -1406,7 +1425,10 @@ int main(int argc, char** argv){
     Eigen eigen, sorted;
     goal goal = translate_goal(str_goal);
     Data data = load_data(data_path);
-    assert(goal < other);
+    if (goal >= other) {
+        printf("Invalid Input!");
+        return 1;
+    }
     assert(argc <= 4);
 
     /* Calculate the relevant values according to the goal's depth */
@@ -1422,7 +1444,6 @@ int main(int argc, char** argv){
     }
     if (goal >= jacobi) {
         eigen = jacobi_algorithm(&L);
-        /*eigen.eigvects = transpose(&eigen.eigvects);*/
 
         if (goal > jacobi) {
             /*Sort Eigen Values and Eigen Vectors if goal==spk*/
@@ -1433,13 +1454,16 @@ int main(int argc, char** argv){
     }
 
     if (goal >= spk) {
-        assert(k >= 0 && k<data.n);
+        if ((k < 0) || (k>data.n)) {
+            printf("Invalid Input!");
+            return 1;
+        }
         if (k == 0) {
-            k = calc_eigengap_heuristic(&eigen);
+            k = calc_eigengap_heuristic(&eigen) + 1;
         }
         points = get_points(&(eigen.eigvects), k);
         normalize_rows(&points);
-        centroids = init_centroids(&(eigen.eigvects), k);
+        centroids = init_centroids(&points, k);
         centroids = converge_centroids(&points, &centroids);
     }
 
@@ -1452,18 +1476,14 @@ int main(int argc, char** argv){
         case lnorm: print_mat(&L);
                 break;
         case jacobi:
-                /*printf("eigenvalues:");*/
                 print_array(eigen.eigvals, eigen.n);
-                /*printf("eigenvectors:");*/
                 transposed = transpose(&eigen.eigvects);
                 print_mat(&transposed);
                 break;
         case spk:
-                /*print_array(eigen.eigvals, eigen.n);
-                print_mat(&eigen.eigvects);*/
                 print_mat(&centroids);
                 break;
-        case other: printf("Recieved bad goal. Exitting program.");
+        case other: printf("Invalid Input!");
                 return 1;
                 break;
     }
