@@ -36,7 +36,10 @@ void print_data(Data *mat) {
                 printf(",");
             }
         }
-        printf("\n");
+        if (i!= n-1){
+            printf("\n");
+        }
+
     }
 }
 
@@ -149,11 +152,13 @@ void print_mat(Matrix* mat) {
             } else {
                 printf("%.4f", mat->array[i][j]);
             }
-            if (j != n - 1) {
+            if (j != m - 1) {
                 printf(",");
             }
         }
-        printf("\n");
+        if (i!=n-1) {
+            printf("\n");
+        }
     }
 }
 
@@ -1460,6 +1465,9 @@ int main(int argc, char** argv){
         }
         if (k == 0) {
             k = calc_eigengap_heuristic(&eigen) + 1;
+        }
+        else{
+            k--;
         }
         points = get_points(&(eigen.eigvects), k);
         normalize_rows(&points);
