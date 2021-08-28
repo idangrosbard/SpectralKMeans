@@ -160,4 +160,4 @@ def create_symmetric_matrix(n,m):
 
 
 if __name__== '__main__':
-    create_symmetric_matrix(10,10)
+    create_random_test(27,8)
