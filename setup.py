@@ -20,7 +20,7 @@ from setuptools import setup, find_packages, Extension
 
 # setup() parameters - https://packaging.python.org/guides/distributing-packages-using-setuptools/
 setup(
-    name='capi_test',
+    name='spkmeans',
     version='1.0.0',
     author="Tomer & Idan",
     author_email="author@example.com",
@@ -46,9 +46,9 @@ setup(
     ext_modules=[
         Extension(
             # the qualified name of the extension module to build
-            'capi_test',
+            'spkmeans',
             # the files to compile into our module relative to ``setup.py``
-            ['capi_test.c'],
+            ['spkmeansmodule.c', 'spkmeans.c'],
         ),
     ]
 )
