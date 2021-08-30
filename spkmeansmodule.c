@@ -100,7 +100,7 @@ static PyObject* get_T(PyObject *self, PyObject *args) {
     PyArg_ParseTuple(args, "is", &k, &path);
     Data data = load_data(path);
 
-    if ((k < 0) || (k > data.n)) {
+    if ((k < 0) || (k >= data.n)) {
         printf("Invalid Input!");
         return NULL;
     }
@@ -128,7 +128,7 @@ static void calc_goal(PyObject *self, PyObject *args) {
     PyArg_ParseTuple(args, "iss", &k, &str_goal, &path);
     Data data = load_data(path);
 
-    if (k < 0 || k > data.n) {
+    if (k < 0 || k >= data.n) {
         printf("Invalid Input!");
         success=false;
     }

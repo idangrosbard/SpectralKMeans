@@ -8,6 +8,7 @@ import random
 import some_code_for_testing
 import Jacobi
 
+
 def load():
 
     #Load Everything in C
@@ -121,12 +122,12 @@ def test(stop=False):
         return False
     return True
 
-def create_random_test(n,m):
+def create_random_test(n,m,path=r"C:\Users\Tomer\CLionProjects\SpectralKMeans-new\SpectralKMeans\tests\input.txt"):
 
     mat = np.random.uniform(-10,10,(n,m))
     mat = (np.round(mat*10**5))/10**5
     df = pd.DataFrame(mat)
-    df.to_csv(r"C:\Users\Tomer\CLionProjects\SpectralKMeans-new\SpectralKMeans\tests\input.txt", header = None,index = False )
+    df.to_csv(path, header = None,index = False )
 
 
 
@@ -160,4 +161,23 @@ def create_symmetric_matrix(n,m):
 
 
 if __name__== '__main__':
-    create_random_test(27,8)
+    path = r"C:\Users\Tomer\CLionProjects\SpectralKMeans-new\SpectralKMeans\tests\spk_tests"
+    i=0
+    while (i<10):
+        try:
+
+            n = random.randint(2,51)
+            m = random.randint(2,11)
+            aug_path_in = path+f"\input{i+1}.txt"
+            aug_path_out = path+f"\output_py{i+1}.txt"
+            create_random_test(n,m,aug_path_in)
+
+            centroids = spkmenas.spk(aug_path_in)
+            print(f"\nIteration number {i+1} out of {10}")
+            np_array = np.around(np.array(centroids),decimals=4)
+
+            pd.DataFrame(np_array).to_csv(aug_path_out,header=None,index=[])
+            i+=1
+        except RuntimeError:
+            pass
+

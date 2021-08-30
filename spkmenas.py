@@ -3,6 +3,7 @@ import numpy as np
 import math
 import sklearn.cluster
 import sys
+import kmeans
 
 
 
@@ -163,6 +164,7 @@ def print_matrix(A):
 
 
 
+
 def jacobi_algorithm(A , epsilon = 10**-15):
     """Given a matrix perfroms the Jacobi algorithm
     and returns a tuple (eigvals, eigvectors)"""
@@ -243,7 +245,12 @@ def normalize_rows(mat):
         row = mat[i,:]
         length = np.sum(np.power(row,2))**0.5
         for j in range (m):
-            norm[i][j] = mat[i,j]/length
+            if(length!=0):
+                norm[i][j] = mat[i,j]/length
+            else:
+                raise RuntimeError("Length zero Error")
+
+
     return norm
 
 def check_normalized(mat):
@@ -255,9 +262,9 @@ def check_normalized(mat):
         if (abs(x-1)>10**-12):
             print(f"Error in row {i}, value of squared values is: {x} and should have been: 1")
 
-if __name__ == "__main__":
-    path = "tests/rami's.txt"
 
+
+def spk (path):
     # Load File and convert it to numpy array
     df = pd.read_csv(path, header=None)
     matrix = df.to_numpy()
@@ -302,7 +309,14 @@ if __name__ == "__main__":
         print(p)"""
 
 
-    print_matrix(T)
+    return kmeans.fit(T,k,300)
+
+
+if __name__ == "__main__":
+    path = "tests/input.txt"
+    centroids = spk(path)
+    print_matrix(np.array(centroids))
+
 
 
 
