@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <assert.h>
 #include <string.h>
 #include "spkmeans.h"
+#include <assert.h>
 
 
 /* Prints all points in data matrix in format (separated by commas and each point in new line) */
@@ -42,7 +42,10 @@ Data load_data(char *path) {
     fptr = fopen(path, "r");
 
     /* Deal with case that file is not legit */
-    assert(fptr != NULL);
+    if (fptr == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
 
     /* Go line by line (Assuming LINE_Length is enough) and insert it to Data  */
     while (fgets(line, sizeof(line), fptr)) {
@@ -80,7 +83,10 @@ Matrix zeros(int n, int m) {
     mat.array= calloc(n, sizeof(double));
 
     /* Deal with errors in allocating memory */
-    assert (mat.array!=NULL);
+    if (mat.array==NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
 
     /* update parameters of Matrix M */
     mat.n = n;
@@ -92,7 +98,10 @@ Matrix zeros(int n, int m) {
         row = calloc(m, sizeof(double));
 
         /* Deal with errors in allocating memory */
-        assert (row!=NULL);
+        if (row==NULL){
+            printf("An Error Has Occured" );
+            exit(0);
+        }
 
         mat.array[i] = row;
     }
@@ -368,7 +377,11 @@ double* mat_get_row (Matrix* A, int i){
     n = A->n;
     m = A->m;
     row = calloc(m ,sizeof(double ));
-    assert(row != NULL);
+    if (row == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
+
     for (j=0; j<m; j++){
         row[j] = A->array[i][j];
     }
@@ -383,7 +396,10 @@ double* mat_get_col (Matrix* A, int j){
     m = A->m;
     assert(j<m && j>=0);
     col = calloc(n , sizeof(double ));
-    assert(col != NULL);
+    if (col == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     for (i=0; i<m; i++){
         col[i] = A->array[i][j];
     }
@@ -398,7 +414,10 @@ double* data_get_row (Data* data, int i){
     m = data->m;
     assert(i<n && i>=0);
     row = calloc(m ,sizeof(double ));
-    assert(row != NULL);
+    if (row == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     for (j=0; j<m; j++){
         row[j] = data->array[i][j];
     }
@@ -413,7 +432,10 @@ double* data_get_col (Data* data, int j){
     n = data->n;
     m = data->m;
     col = calloc(n , sizeof(double ));
-    assert(col != NULL);
+    if (col == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     for (i=0; i<n; i++){
         col[i] = data->array[i][j];
     }
@@ -470,7 +492,10 @@ double l2_dist_sqr(double* point1, double* point2, int n) {
     double* delta;
     double value;
     delta = calloc(n, sizeof(double));
-    assert(delta != NULL);
+    if (delta == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
 
     for (i = 0; i < n; i++) {
         delta[i] = point1[i] - point2[i];
@@ -763,7 +788,10 @@ Eigen vecs_to_eigen(EigenVec* vecs, int n) {
     Matrix sorted_eigenmat = zeros(n, n);
     int i, j;
     eigen.eigvals = calloc(n, sizeof(double));
-    assert(eigen.eigvals != NULL);
+    if (eigen.eigvals == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
 
     /* Iterating the vectors and writing them to the matrix */
     for (i = 0; i < n; i++) {
@@ -831,9 +859,15 @@ Eigen sort_eigen(Eigen* eigen) {
     EigenVec* source_eigenvecs;
     EigenVec* dest_eigenvecs;
     source_eigenvecs = calloc(eigen->n, sizeof(EigenVec));
-    assert(source_eigenvecs != NULL);
+    if (source_eigenvecs == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     dest_eigenvecs = calloc(eigen->n, sizeof(EigenVec));
-    assert(dest_eigenvecs != NULL);
+    if(dest_eigenvecs == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     
     eigen_to_vecs(eigen, source_eigenvecs);
     
@@ -885,7 +919,10 @@ Eigen jacobi_algorithm(Matrix* mat){
 
     /* return Value as Struct - eigvals (array of doubles) and eigvecs (Matrix) */
     eigen.eigvals = calloc(n,sizeof (double));
-    assert(eigen.eigvals != NULL);
+    if (eigen.eigvals == NULL){
+        printf("An Error Has Occured" );
+        exit(0);
+    }
     for (i=0;i<n;i++){
         eigen.eigvals[i] = A_prime.array[i][i];
     }
@@ -1015,8 +1052,14 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
     for (i = 0; i < MAX_ITER; i++) {
         point_assignment = calloc(data->n, sizeof(int));
         assignment_count = calloc(prior_centroids.n, sizeof(int));
-        assert(point_assignment != NULL);
-        assert(assignment_count != NULL);
+        if (point_assignment == NULL){
+            printf("An Error Has Occured" );
+            exit(0);
+        }
+        if (assignment_count == NULL){
+            printf("An Error Has Occured" );
+            exit(0);
+        }
         
         /* assign a closest centroid to each data point */
         for (j = 0; j < data->n; j++) {
@@ -1453,7 +1496,9 @@ int main(int argc, char** argv) {
         printf("Invalid Input!");
         return 1;
     }
-    assert(argc >= 0);
+    if (argc < 3 ){
+        printf("Invalid Input!");
+    }
 
     switch(goal){
         case wam:
