@@ -1,4 +1,4 @@
-#define MAX_POINTS 1000
+#define MAX_POINTS 50
 #define MAX_DIMS  10
 #define LINE_LENGTH 1024
 #define EPSILON 1e-15
