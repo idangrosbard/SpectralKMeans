@@ -43,7 +43,7 @@ if __name__=='__main__':
     goal = sys.argv[2]
     input_path = sys.argv[3]
     if goal in ['wam', 'ddg', 'lnorm', 'jacobi']:
-        spkmeans.run(k, goal, input_path)
+        spkmeans.calc_goal(k, goal, input_path)
     if goal == 'spk':
         T = spkmeans.get_T(k, input_path)
         T_arr = np.array(T)
