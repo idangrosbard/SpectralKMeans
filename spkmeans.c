@@ -9,7 +9,7 @@
  */
 void custom_assert(int condition) {
     if (!condition) {
-        pritnf("An Error Has Occured");
+        printf("An Error Has Occured");
         exit(1);
     }
 }
@@ -147,7 +147,7 @@ void print_mat(Matrix* mat) {
 /* Given a Matrix A, returns a Matrix A.T s.t for all i and j A[i,j] = A.T[j,i] */
 Matrix transpose(Matrix* A){
 
-    /* Initialize Paramaters */
+    /* Initialize Parameters */
     int i,j;
     int n = A->n;
     int m = A->m;
@@ -840,6 +840,9 @@ Eigen sort_eigen(Eigen* eigen) {
     return sorted_eigen;
 }
 
+/**
+ * Calculating eigenvalues and eigenvectors of a matrix using Jacobi's algorithm
+ */
 Eigen jacobi_algorithm(Matrix* mat){
     Eigen eigen; /*, sorted; */
     int n = mat->n;
@@ -1341,6 +1344,9 @@ void test_off_diag (){
 
 /******************************************** */
 
+/**
+ * Translate a string format goal to the goal enum
+ */
 goal translate_goal(char* str_goal) {
     if (strcmp("wam", str_goal) == 0) {
         return wam;
@@ -1362,10 +1368,16 @@ goal translate_goal(char* str_goal) {
     }
 }
 
+/**
+ * Calculate the W matrix of the given data
+ */
 Matrix calc_W(Data* data) {
     return build_W(data);
 }
 
+/**
+ * Calculate the D matrix of the given data
+ */
 Matrix calc_D(Data* data) {
     Matrix D, W;
     W = calc_W(data);
@@ -1374,6 +1386,9 @@ Matrix calc_D(Data* data) {
     return D;
 }
 
+/**
+ * Calculate the D_half matrix of the given data
+ */
 Matrix calc_D_half(Data* data) {
     Matrix D_half, D;
     D = calc_D(data);
@@ -1382,6 +1397,10 @@ Matrix calc_D_half(Data* data) {
     return D_half;
 }
 
+
+/**
+ * Calculate the LNorm matrix of the given data
+ */
 Matrix calc_laplacian(Data* data) {
     Matrix lnorm, D_half, W;
     W = calc_W(data);
@@ -1392,6 +1411,9 @@ Matrix calc_laplacian(Data* data) {
     return lnorm;
 }
 
+/**
+ * Calculate the eigenvectors and eigenvalues of the LNorm of the given data
+ */
 Eigen calc_eigen(Data* data) {
     Eigen eigen;
     Matrix lnorm = calc_laplacian(data);
@@ -1399,7 +1421,9 @@ Eigen calc_eigen(Data* data) {
     free_mat(&lnorm);
     return eigen;
 }
-
+/**
+ * Calculate the T matrix of the given data
+ */
 Matrix calc_T(Data* data, int k) {
     Matrix points;
     Eigen sorted, eigen;
@@ -1419,23 +1443,62 @@ Matrix calc_T(Data* data, int k) {
     return points;
 }
 
+/*Returns whether a given string contains only digit letters (0-9)*. eg is_digit("123") = true. is_digit("123,1" = false*/
+bool is_digit(char *str , int len) {
+    int i;
+    char ch;
+    for (i=0;i<len;i++){
+        ch = str[i];
+        if (ch<'0' || ch>'9'){
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    int k = atoi(argv[1]);
-    char *str_goal = argv[2];
-    char *data_path = argv[3];
+
+    /* Initializing some variables needed later*/
     Matrix target_mat, points;
     Eigen eigen;
-    goal goal = translate_goal(str_goal);
-    Data data = load_data(data_path);
+    int k;
+    Data data;
+    char *str_goal;
+    char *data_path;
+    goal goal;
+
+/*Firstly, Assert input is in right format and print "Invalid Input!" Error Otherwise*/
+
+    /*Check whether enough argument has been given as input*/
+    if (argc<4){
+        printf("Invalid Input!");
+        return 1;
+    }
+
+    /*Check Whether k is non negative integer */
+    if (is_digit(argv[1],strlen(argv[1]))!=true){
+        printf("Invalid Input!");
+        return 1;
+    }
+
+    k = atoi(argv[1]);
+    str_goal = argv[2];
+    data_path = argv[3];
+    goal = translate_goal(str_goal);
+
+    /*Check Whether goal is in correct format */
     if (goal >= other) {
         printf("Invalid Input!");
         return 1;
     }
-    if (k < 0 || k > data.n) {
+
+    /* Load Data and check whether data is ok and k is small enough */
+    data = load_data(data_path);
+    if (k < 0 || k >= data.n) {
         printf("Invalid Input!");
         return 1;
     }
-    custom_assert(argc >= 0);
+
 
     switch(goal){
         case wam:

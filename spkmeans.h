@@ -78,7 +78,7 @@ double* data_get_row (Data* data, int i);
 double* data_get_col (Data* data, int j);
 
 /* Parse Data object to Matrix */
-Matrix data_to_matrix(Data* data)
+Matrix data_to_matrix(Data* data);
 
 /****************************************************/
 /********************** Matrix **********************/
@@ -201,7 +201,7 @@ double off(Matrix* A);
 /***************************************************/
 
 /* A function to depp free the Eigen Struct */
-void free_eigen(Eigen* eigen)
+void free_eigen(Eigen* eigen);
 
 /** retrieves the i'th eigenvector from the eigen matrix
  * eigen - the eigen matrix
@@ -349,6 +349,9 @@ Matrix calc_T(Data* data, int k);
 /**************************************************/
 
 /**
- * Assert memory allocation of ptr was succefull
+ * custom assert function, if condition is false -> print error and close the program
  */
-void assert_mem_alloc(void *ptr);
+void custom_assert(int condition);
+
+/*Returns whether a given string contains only digit letters (0-9)*. eg is_digit("123") = true. is_digit("123,1" = false*/
+bool is_digit(char *str , int len);
