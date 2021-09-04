@@ -303,7 +303,7 @@ Matrix mat_add (Matrix* A, Matrix*B){
     int m2 = B->m;
 
     /* Make sure operation is legit */
-    custom_assert(n1==n2 && m1==m2);
+    custom_assert((n1==n2) && (m1==m2));
 
     C =zeros(n1,m1);
     for (i=0; i<n1; i++){
@@ -325,7 +325,7 @@ Matrix mat_sub (Matrix* A, Matrix* B){
     int m2 = B->m;
 
     /* Make sure operation is legit */
-    custom_assert(n1==n2 && m1==m2);
+    custom_assert((n1==n2) && (m1==m2));
 
     C = zeros(n1,m1);
     for (i=0; i<n1; i++){
@@ -372,10 +372,10 @@ double mat_total_sum (Matrix* A){
 double* mat_get_row (Matrix* A, int i){
     int n, m, j;
     double* row;
-    custom_assert(i<n && i>=0);
     n = A->n;
     m = A->m;
     row = calloc(m ,sizeof(double ));
+    custom_assert((i<n) && (i>=0));
     custom_assert(row != NULL);
     for (j=0; j<m; j++){
         row[j] = A->array[i][j];
@@ -389,7 +389,7 @@ double* mat_get_col (Matrix* A, int j){
     double* col;
     n = A->n;
     m = A->m;
-    custom_assert(j<m && j>=0);
+    custom_assert((j<m) && (j>=0));
     col = calloc(n , sizeof(double ));
     custom_assert(col != NULL);
     for (i=0; i<m; i++){
@@ -404,7 +404,7 @@ double* data_get_row (Data* data, int i){
     double* row;
     n = data->n;
     m = data->m;
-    custom_assert(i<n && i>=0);
+    custom_assert((i<n) && (i>=0));
     row = calloc(m ,sizeof(double ));
     custom_assert(row != NULL);
     for (j=0; j<m; j++){
@@ -417,9 +417,9 @@ double* data_get_row (Data* data, int i){
 double* data_get_col (Data* data, int j){
     int n, m, i;
     double* col;
-    custom_assert(j<m && j>=0);
     n = data->n;
     m = data->m;
+    custom_assert((j<m) && (j>=0));
     col = calloc(n , sizeof(double ));
     custom_assert(col != NULL);
     for (i=0; i<n; i++){
