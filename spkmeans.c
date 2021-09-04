@@ -1500,6 +1500,9 @@ int main(int argc, char** argv) {
     Eigen eigen;
     int k;
     Data data;
+    char *str_goal;
+    char *data_path;
+    goal goal;
 
 /*Firstly, Assert input is in right format and print "Invalid Input!" Error Otherwise*/
 
@@ -1516,10 +1519,10 @@ int main(int argc, char** argv) {
     }
 
     k = atoi(argv[1]);
-    char *str_goal = argv[2];
-    char *data_path = argv[3];
 
-    goal goal = translate_goal(str_goal);
+    str_goal = argv[2];
+    data_path = argv[3];
+    goal = translate_goal(str_goal);
 
     /*Check Whether goal is in correct format */
     if (goal >= other) {
