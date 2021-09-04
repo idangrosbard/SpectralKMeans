@@ -205,7 +205,7 @@ static struct PyModuleDef moduledef = {
  * This should be the only non-static item defined in the module file
  */
 PyMODINIT_FUNC
-PyInit_spkmeans(void)
+PyObject* PyInit_spkmeans(void)
 {
     PyObject *m;
     m = PyModule_Create(&moduledef);
