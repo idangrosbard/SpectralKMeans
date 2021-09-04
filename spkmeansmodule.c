@@ -120,6 +120,7 @@ static PyObject* get_T(PyObject *self, PyObject *args) {
     T = calc_T(&data, k);
 
     py_T = matrix_to_list(&T);
+    custom_assert(py_T != NULL);
     free_mat(&T);
 
     return py_T;
@@ -196,7 +197,6 @@ static struct PyModuleDef moduledef = {
     -1,  /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
     capiMethods /* the PyMethodDef array from before containing the methods of the extension */
 };
-
 
 /*
  * The PyModuleDef structure, in turn, must be passed to the interpreter in the module’s initialization function.
