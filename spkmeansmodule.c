@@ -4,13 +4,18 @@
 
 /**
  * Copies a double array of size n to a python list
+ * if an error occurs - return NULL
  */
 static PyObject* array_to_list(double* arr, int n) {
     int i = 0;
     PyObject *list=NULL;
     list = PyList_New(n);
+    if (list == NULL) {
+        return NULL;
+    }
     
     for (i = 0; i < n; i++) {
+        /* if an error occurs - return NULL */
         if (PyList_SetItem(list, i, PyFloat_FromDouble(arr[i])) == -1) {
             return NULL;
         }
@@ -20,19 +25,25 @@ static PyObject* array_to_list(double* arr, int n) {
 
 /**
  * Copies a Matrix (mat) to a list of lists (each inner list is a row in the matrix)
+ * if an error occurs - return NULL
  */
 static PyObject* matrix_to_list(Matrix *mat) {
     int i = 0;
     PyObject *list=NULL, *row=NULL;
     
     list = PyList_New(mat->n);
+    if (list == NULL) {
+        return NULL;
+    }
+    
     
     for (i = 0; i < mat->n; i++) {
-        
+        /* for every row in the matrix - parse the row to a python list */
         row = array_to_list(mat->array[i], mat->m);
         if (row == NULL) {
             return NULL;
         }
+        /* set the new list-row as an item in the list-matrix */
         if (PyList_SetItem(list, i, row) == -1) {
             return NULL;
         }    
@@ -90,6 +101,7 @@ static void kmeans(PyObject *self, PyObject *args) {
 
 /**
  * Return the T matrix as a python list of lists
+ * if an error occurs - return NULL
  */
 static PyObject* get_T(PyObject *self, PyObject *args) {
     int k;

@@ -3,8 +3,16 @@
 #include <math.h>
 #include <string.h>
 #include "spkmeans.h"
-#include <assert.h>
 
+/**
+ * custom assert function, if condition is false -> print error and close the program
+ */
+void custom_assert(int condition) {
+    if (!condition) {
+        pritnf("An Error Has Occured");
+        exit(1);
+    }
+}
 
 /* Prints all points in data matrix in format (separated by commas and each point in new line) */
 void print_data(Data *mat) {
@@ -42,10 +50,7 @@ Data load_data(char *path) {
     fptr = fopen(path, "r");
 
     /* Deal with case that file is not legit */
-    if (fptr == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(fptr != NULL);
 
     /* Go line by line (Assuming LINE_Length is enough) and insert it to Data  */
     while (fgets(line, sizeof(line), fptr)) {
@@ -83,10 +88,7 @@ Matrix zeros(int n, int m) {
     mat.array= calloc(n, sizeof(double));
 
     /* Deal with errors in allocating memory */
-    if (mat.array==NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(mat.array != NULL);
 
     /* update parameters of Matrix M */
     mat.n = n;
@@ -98,10 +100,7 @@ Matrix zeros(int n, int m) {
         row = calloc(m, sizeof(double));
 
         /* Deal with errors in allocating memory */
-        if (row==NULL){
-            printf("An Error Has Occured" );
-            exit(0);
-        }
+        custom_assert(row != NULL);
 
         mat.array[i] = row;
     }
@@ -203,7 +202,7 @@ Matrix mat_pow_diagonal(Matrix* A, double power){
     int m = A->m;
     
     /* Assert Matrix is squared */
-    assert(n==m);
+    custom_assert(n==m);
 
     /* Create a copy and then power each element on diagonal */
     B = mat_copy(A);
@@ -245,7 +244,7 @@ Matrix mat_mul (Matrix* A, Matrix* B){
     int m2 = B->m;
 
     /* Check if it is ok to multiply */
-    assert (m1==n2);
+    custom_assert(m1==n2);
 
     /* Initialize Matrix C=A*B */
     C = zeros(n1,m2);
@@ -304,7 +303,7 @@ Matrix mat_add (Matrix* A, Matrix*B){
     int m2 = B->m;
 
     /* Make sure operation is legit */
-    assert(n1==n2 && m1==m2);
+    custom_assert(n1==n2 && m1==m2);
 
     C =zeros(n1,m1);
     for (i=0; i<n1; i++){
@@ -326,7 +325,7 @@ Matrix mat_sub (Matrix* A, Matrix* B){
     int m2 = B->m;
 
     /* Make sure operation is legit */
-    assert(n1==n2 && m1==m2);
+    custom_assert(n1==n2 && m1==m2);
 
     C = zeros(n1,m1);
     for (i=0; i<n1; i++){
@@ -373,15 +372,11 @@ double mat_total_sum (Matrix* A){
 double* mat_get_row (Matrix* A, int i){
     int n, m, j;
     double* row;
-    assert(i<n && i>=0);
+    custom_assert(i<n && i>=0);
     n = A->n;
     m = A->m;
     row = calloc(m ,sizeof(double ));
-    if (row == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
-
+    custom_assert(row != NULL);
     for (j=0; j<m; j++){
         row[j] = A->array[i][j];
     }
@@ -394,12 +389,9 @@ double* mat_get_col (Matrix* A, int j){
     double* col;
     n = A->n;
     m = A->m;
-    assert(j<m && j>=0);
+    custom_assert(j<m && j>=0);
     col = calloc(n , sizeof(double ));
-    if (col == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(col != NULL);
     for (i=0; i<m; i++){
         col[i] = A->array[i][j];
     }
@@ -412,12 +404,9 @@ double* data_get_row (Data* data, int i){
     double* row;
     n = data->n;
     m = data->m;
-    assert(i<n && i>=0);
+    custom_assert(i<n && i>=0);
     row = calloc(m ,sizeof(double ));
-    if (row == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(row != NULL);
     for (j=0; j<m; j++){
         row[j] = data->array[i][j];
     }
@@ -428,14 +417,11 @@ double* data_get_row (Data* data, int i){
 double* data_get_col (Data* data, int j){
     int n, m, i;
     double* col;
-    assert(j<m && j>=0);
+    custom_assert(j<m && j>=0);
     n = data->n;
     m = data->m;
     col = calloc(n , sizeof(double ));
-    if (col == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(col != NULL);
     for (i=0; i<n; i++){
         col[i] = data->array[i][j];
     }
@@ -459,7 +445,6 @@ Matrix data_to_matrix(Data* data){
 /************************   Algorithm Related Functions  ****************************/
 /*********************************************************************************/
 
-
 /**
  * returns the l2 norm squared of point of dimension n
  */
@@ -475,6 +460,7 @@ double l2_norm_sqr(double* point, int n) {
 
     return sum;
 }
+
 /**
  * Calculates the L2 norm of a single point
  * point - an array of size n
@@ -492,10 +478,7 @@ double l2_dist_sqr(double* point1, double* point2, int n) {
     double* delta;
     double value;
     delta = calloc(n, sizeof(double));
-    if (delta == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(delta != NULL);
 
     for (i = 0; i < n; i++) {
         delta[i] = point1[i] - point2[i];
@@ -600,13 +583,6 @@ Matrix laplacian (Matrix* D_half, Matrix* W){
     return ret_mat;
 }
 
-
-/* Struct to Store entry of the matrix (i,j) */
-typedef struct Index{
-    int x;
-    int y;
-} Index;
-
 /* Returns a struct Index element  index such that A[index.x, index.y] is the maximum element in A which is not on the diagonal */
 Index off_diagonal_index (Matrix* A){
     /* Initialize variables need later */
@@ -697,7 +673,7 @@ Matrix calc_A_prime(Matrix* A){
     int m = A->m;
     double **a_prime, **a;
     double theta, t, c, s;
-    assert(n==m);
+    custom_assert(n==m);
     A_prime = mat_copy(A);
     a_prime = A_prime.array;
 
@@ -730,15 +706,6 @@ Matrix calc_A_prime(Matrix* A){
 
     return A_prime;
 }
-
-/**
- * A single eigenvector with it's eigenvalue, needed for sorting the values with their corresponding vectors
- */
-typedef struct EigenVec {
-    double* vector;
-    int n;
-    double value;
-} EigenVec;
 
 /** retrieves the i'th eigenvector from the eigen matrix
  * eigen - the eigen matrix
@@ -788,10 +755,7 @@ Eigen vecs_to_eigen(EigenVec* vecs, int n) {
     Matrix sorted_eigenmat = zeros(n, n);
     int i, j;
     eigen.eigvals = calloc(n, sizeof(double));
-    if (eigen.eigvals == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(eigen.eigvals != NULL);
 
     /* Iterating the vectors and writing them to the matrix */
     for (i = 0; i < n; i++) {
@@ -859,15 +823,9 @@ Eigen sort_eigen(Eigen* eigen) {
     EigenVec* source_eigenvecs;
     EigenVec* dest_eigenvecs;
     source_eigenvecs = calloc(eigen->n, sizeof(EigenVec));
-    if (source_eigenvecs == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(source_eigenvecs != NULL);
     dest_eigenvecs = calloc(eigen->n, sizeof(EigenVec));
-    if(dest_eigenvecs == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(dest_eigenvecs != NULL);
     
     eigen_to_vecs(eigen, source_eigenvecs);
     
@@ -919,10 +877,7 @@ Eigen jacobi_algorithm(Matrix* mat){
 
     /* return Value as Struct - eigvals (array of doubles) and eigvecs (Matrix) */
     eigen.eigvals = calloc(n,sizeof (double));
-    if (eigen.eigvals == NULL){
-        printf("An Error Has Occured" );
-        exit(0);
-    }
+    custom_assert(eigen.eigvals != NULL);
     for (i=0;i<n;i++){
         eigen.eigvals[i] = A_prime.array[i][i];
     }
@@ -941,7 +896,7 @@ Eigen jacobi_algorithm(Matrix* mat){
 
 /**
  * calculates best k according to eigengap heuristic
- * eigen - contains all eigenvalues and number of values
+ * eigen - contains all eigenvalues in non-decreasing order
  */
 int calc_eigengap_heuristic(Eigen* eigen) {
     double max_delta = 0;
@@ -961,19 +916,6 @@ int calc_eigengap_heuristic(Eigen* eigen) {
 
     return max_delta_k;
 }
-
-/**
- * gets the matrix to cluster the points according to
- */
-Eigen get_clustering_matrix(Eigen* eigen) {
-    Eigen sorted_eigen;
-    int k = 0;
-    sorted_eigen = sort_eigen(eigen);
-    k = calc_eigengap_heuristic(&sorted_eigen);
-    sorted_eigen.eigvects.m = k;
-    return sorted_eigen;
-}
-
 
 /*********************************************************************************/
 /*********************************** K-Means *************************************/
@@ -1052,14 +994,8 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
     for (i = 0; i < MAX_ITER; i++) {
         point_assignment = calloc(data->n, sizeof(int));
         assignment_count = calloc(prior_centroids.n, sizeof(int));
-        if (point_assignment == NULL){
-            printf("An Error Has Occured" );
-            exit(0);
-        }
-        if (assignment_count == NULL){
-            printf("An Error Has Occured" );
-            exit(0);
-        }
+        custom_assert(point_assignment != NULL);
+        custom_assert(assignment_count != NULL);
         
         /* assign a closest centroid to each data point */
         for (j = 0; j < data->n; j++) {
@@ -1091,6 +1027,9 @@ Matrix init_centroids(Matrix *data, int k) {
     return mat_window_copy(data, 0, k, 0, k);
 }
 
+/**
+ * Get the points to cluster (get first k coordinates of each point)
+ */
 Matrix get_points(Matrix *data, int k) {
     return mat_window_copy(data, 0, data->n, 0, k);
 }
@@ -1496,9 +1435,7 @@ int main(int argc, char** argv) {
         printf("Invalid Input!");
         return 1;
     }
-    if (argc < 3 ){
-        printf("Invalid Input!");
-    }
+    custom_assert(argc >= 0);
 
     switch(goal){
         case wam:
@@ -1530,6 +1467,5 @@ int main(int argc, char** argv) {
     print_mat(&target_mat);
     free_mat(&target_mat);
     
-
     return 0;
 }
