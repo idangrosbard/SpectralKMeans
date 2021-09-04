@@ -148,7 +148,7 @@ void print_mat(Matrix* mat) {
 /* Given a Matrix A, returns a Matrix A.T s.t for all i and j A[i,j] = A.T[j,i] */
 Matrix transpose(Matrix* A){
 
-    /* Initialize Paramaters */
+    /* Initialize Parameters */
     int i,j;
     int n = A->n;
     int m = A->m;
@@ -1480,25 +1480,60 @@ Matrix calc_T(Data* data, int k) {
     return points;
 }
 
+/*Returns whether a given string contains only digit letters (0-9)*. eg is_digit("123") = true. is_digit("123,1" = false*/
+bool is_digit(char *str , int len) {
+    int i;
+    char ch;
+    for (i=0;i<len;i++){
+        ch = str[i];
+        if (ch<'0' || ch>'9'){
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    int k = atoi(argv[1]);
-    char *str_goal = argv[2];
-    char *data_path = argv[3];
+
+    /* Initializing some variables needed later*/
     Matrix target_mat, points;
     Eigen eigen;
+    int k;
+    Data data;
+
+/*Firstly, Assert input is in right format and print "Invalid Input!" Error Otherwise*/
+
+    /*Check whether enough argument has been given as input*/
+    if (argc<4){
+        printf("Invalid Input!");
+        return 1;
+    }
+
+    /*Check Whether k is non negative integer */
+    if (is_digit(argv[1],strlen(argv[1]))!=true){
+        printf("Invalid Input!");
+        return 1;
+    }
+
+    k = atoi(argv[1]);
+    char *str_goal = argv[2];
+    char *data_path = argv[3];
+
     goal goal = translate_goal(str_goal);
-    Data data = load_data(data_path);
+
+    /*Check Whether goal is in correct format */
     if (goal >= other) {
         printf("Invalid Input!");
         return 1;
     }
-    if (k < 0 || k > data.n) {
+
+    /* Load Data and check whether data is ok and k is small enough */
+    data = load_data(data_path);
+    if (k < 0 || k >= data.n) {
         printf("Invalid Input!");
         return 1;
     }
-    if (argc < 3 ){
-        printf("Invalid Input!");
-    }
+
 
     switch(goal){
         case wam:
