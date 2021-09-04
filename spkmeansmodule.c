@@ -136,7 +136,6 @@ static void calc_goal(PyObject *self, PyObject *args) {
     bool success=true;
     Matrix target_mat;
     Eigen eigen;
-    PyObject *py_T;
     
     PyArg_ParseTuple(args, "iss", &k, &str_goal, &path);
     Data data = load_data(path);
