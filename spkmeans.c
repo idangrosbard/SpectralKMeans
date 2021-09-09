@@ -886,12 +886,9 @@ Eigen jacobi_algorithm(Matrix* mat){
     }
     eigen.eigvects = V;
     eigen.n = n;
-    
-    /*sorted = sort_eigen(&eigen);*
 
-    free_eigen(&eigen);
-
-    return sorted;*/
+    free_mat(&A_prime);
+    free_mat(&P);
 
     return eigen;
 }
