@@ -711,7 +711,6 @@ Eigen jacobi_algorithm(Matrix* mat){
 
     while (diff> EPSILON && c<MAX_JACOBI_ITER-1){
 
-        /* printf("Jacobi Iteration number %d.| diff is %f|off(A') =  %f\n",c,diff,off(&A_prime)); */
         /* Free What needs to be Free */
         free_mat(&A);
         free_mat(&P);
@@ -729,6 +728,8 @@ Eigen jacobi_algorithm(Matrix* mat){
         diff = off(&A) - off(&A_prime);
         c++;
     }
+
+    free_mat(&A);
 
     /* return Value as Struct - eigvals (array of doubles) and eigvecs (Matrix) */
     eigen.eigvals = calloc(n,sizeof (double));
