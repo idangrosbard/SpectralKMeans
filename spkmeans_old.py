@@ -34,7 +34,6 @@ def calc_centroids(T: np.array, k: int):
         centroid_index = np.random.choice(n, p=pr)
         centroid = T[centroid_index, :]
 
-    print(",".join([str(x) for x in indices]))
     init_centroids = np.zeros((k, k))
     for i in range(k):
         init_centroids[i, :] = T[indices[i], :]

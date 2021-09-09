@@ -14,25 +14,6 @@ void custom_assert(int condition) {
     }
 }
 
-/* Prints all points in data matrix in format (separated by commas and each point in new line) */
-void print_data(Data *mat) {
-    int n = mat->n;
-    int m = mat->m;
-    int i, j;
-
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            printf("%f", mat->array[i][j]);
-            if (j != m - 1) {
-                printf(",");
-            }
-        }
-        if (i!= n-1){
-            printf("\n");
-        }
-
-    }
-}
 
 /* Given a path to file, return a Data structure that contains all points */
 Data load_data(char *path) {
@@ -162,28 +143,28 @@ Matrix transpose(Matrix* A){
 }
 
 /**
- * Copies content of matrix A in window: 
+ * Copies content of matrix A in window:
  *   (n1, m1) ------------- (n1, m2 - 1)
  *        |                      |
  * (n2 - 1, m1) --------- (n2 - 1, m2 - 1)
  *
  */
 Matrix mat_window_copy(Matrix* A, int n1, int n2, int m1, int m2) {
-    int i=n1,j=m1;
+    int i,j;
     Matrix B = zeros(n2 - n1, m2 - m1);
-    
+
     for (i = n1; i < n2; i++) {
         for (j = m1; j < m2; j++) {
             B.array[i - n1][j - m1] = A->array[i][j];
         }
     }
-    
+
     return B;
 }
 
 /* returns a new matrix B which is exact copy of A. for all i,j A[i,j] = B[i,j] */
 Matrix mat_copy(Matrix* A){
-    int i=0,j=0;
+    int i,j;
     Matrix B = zeros(A->n,A->m);
     for (i = 0; i < A->n; i++) {
         for (j = 0; j < A->m; j++) {
@@ -200,7 +181,7 @@ Matrix mat_pow_diagonal(Matrix* A, double power){
     Matrix B;
     int n = A->n;
     int m = A->m;
-    
+
     /* Assert Matrix is squared */
     custom_assert(n==m);
 
@@ -210,26 +191,6 @@ Matrix mat_pow_diagonal(Matrix* A, double power){
         B.array[i][i] = pow(A->array[i][i],power);
     }
     return B;
-}
-
-/* returns true if and only if for all i,j A[i,j]=B[i,j] */
-bool mat_is_equal(Matrix* A,Matrix* B){
-    int i,j;
-    int n1 = A->n;
-    int n2 = B->n;
-    int m1 = A->m;
-    int m2 = B->m;
-    if ((n1!=n2) || (m1!=m2)){
-        return false;
-    }
-    for (i=0; i<n1;i++){
-        for (j=0; j<m1;j++){
-            if (A->array[i][j]!= B->array[i][j]){
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 /* Performs Matrix multiplication */
@@ -262,56 +223,14 @@ Matrix mat_mul (Matrix* A, Matrix* B){
     return C;
 }
 
-/* Multiply a matrix by a scalar (entry by entry) */
-Matrix mat_scalar_mul(Matrix* A, double scalar){
-    /* Initialize Parameters needed later */
-    int i,j;
-    Matrix C;
-    int n = A->n;
-    int m = A->m;
-
-    C = zeros(n,m);
-
-    /* do the multiplicity entry by entry */
-    for (i=0;i<n;i++){
-        for(j=0;j<m;j++){
-            C.array[i][j] = A->array[i][j]*scalar;
-        }
-    }
-    return C;
-
-}
-
 /* Returns the identity Matrix I[i,j]=0 if i!=j and I[i,i] = 1 */
 Matrix mat_identity (int n){
-    int i=0;
+    int i;
     Matrix I = zeros(n,n);
     for (i=0;i<n;i++){
         I.array[i][i]=1;
     }
     return I;
-}
-
-/* Returns a matrix C s.t C[i,j]=A[i,j]+B[i,j] for all i,j. Meaning C = A+B */
-Matrix mat_add (Matrix* A, Matrix*B){
-    /* Initialize some variables need later */
-    int i,j;
-    Matrix C;
-    int n1 = A->n;
-    int n2 = B->n;
-    int m1 = A->m;
-    int m2 = B->m;
-
-    /* Make sure operation is legit */
-    custom_assert((n1==n2) && (m1==m2));
-
-    C =zeros(n1,m1);
-    for (i=0; i<n1; i++){
-        for (j=0; j<m1; j++){
-            C.array[i][j] = A->array[i][j] +B->array[i][j];
-        }
-    }
-    return C;
 }
 
 /* Returns a matrix C s.t C[i,j]=A[i,j]-B[i,j] for all i,j. Meaning C = A-B */
@@ -325,7 +244,7 @@ Matrix mat_sub (Matrix* A, Matrix* B){
     int m2 = B->m;
 
     /* Make sure operation is legit */
-    custom_assert((n1==n2) && (m1==m2));
+    custom_assert(n1==n2 && m1==m2);
 
     C = zeros(n1,m1);
     for (i=0; i<n1; i++){
@@ -336,17 +255,6 @@ Matrix mat_sub (Matrix* A, Matrix* B){
     return C;
 }
 
-/* returns a Matrix B s.t B[i,j] = A[i,j]^2 for all i,j. */
-Matrix mat_square(Matrix* A){
-    Matrix B = zeros(A->n,A->m);
-    int i,j;
-    for (i=0;i<A->n;i++){
-        for (j=0;j<A->m;j++){
-            B.array [i][j] = pow(A->array[i][j],2);
-        }
-    }
-    return B;
-}
 
 /* returns a double which is the sum of all entries in the row_index row in the matrix */
 double mat_sum_by_row(Matrix* A, int row_index){
@@ -358,30 +266,6 @@ double mat_sum_by_row(Matrix* A, int row_index){
     return sum;
 }
 
-/* returns a double which is the sum of all entries in the row_index row in the matrix */
-double mat_total_sum (Matrix* A){
-    double sum =0;
-    int i;
-    for (i=0; i<A->n;i++){
-        sum += mat_sum_by_row(A,i);
-    }
-    return sum;
-}
-
-/* given index i returns the i'th row in the Matrix A */
-double* mat_get_row (Matrix* A, int i){
-    int n, m, j;
-    double* row;
-    n = A->n;
-    m = A->m;
-    row = calloc(m ,sizeof(double ));
-    custom_assert((i<n) && (i>=0));
-    custom_assert(row != NULL);
-    for (j=0; j<m; j++){
-        row[j] = A->array[i][j];
-    }
-    return row;
-}
 
 /* given index j returns the j'th row in the Matrix A */
 double* mat_get_col (Matrix* A, int j){
@@ -389,7 +273,7 @@ double* mat_get_col (Matrix* A, int j){
     double* col;
     n = A->n;
     m = A->m;
-    custom_assert((j<m) && (j>=0));
+    custom_assert(j<m && j>=0);
     col = calloc(n , sizeof(double ));
     custom_assert(col != NULL);
     for (i=0; i<m; i++){
@@ -404,7 +288,7 @@ double* data_get_row (Data* data, int i){
     double* row;
     n = data->n;
     m = data->m;
-    custom_assert((i<n) && (i>=0));
+    custom_assert(i<n && i>=0);
     row = calloc(m ,sizeof(double ));
     custom_assert(row != NULL);
     for (j=0; j<m; j++){
@@ -413,33 +297,7 @@ double* data_get_row (Data* data, int i){
     return row;
 }
 
-/* given index j returns the j'th row in the Data type data */
-double* data_get_col (Data* data, int j){
-    int n, m, i;
-    double* col;
-    n = data->n;
-    m = data->m;
-    custom_assert((j<m) && (j>=0));
-    col = calloc(n , sizeof(double ));
-    custom_assert(col != NULL);
-    for (i=0; i<n; i++){
-        col[i] = data->array[i][j];
-    }
-    return col;
-}
 
-Matrix data_to_matrix(Data* data){
-    int n = data->n;
-    int m = data->m;
-    int i,j;
-    Matrix mat = zeros(n,m);
-    for (i=0;i<n;i++){
-        for (j=0;j<m;j++){
-            mat.array[i][j] =data->array[i][j];
-        }
-    }
-    return mat;
-}
 
 /*********************************************************************************/
 /************************   Algorithm Related Functions  ****************************/
@@ -449,9 +307,9 @@ Matrix data_to_matrix(Data* data){
  * returns the l2 norm squared of point of dimension n
  */
 double l2_norm_sqr(double* point, int n) {
-    int i = 0;
+    int i;
     double sum = 0;
-    double value = 0;
+    double value;
     for (i=0; i<n; i++){
         value = point[i];
         value = value * value;
@@ -500,8 +358,8 @@ double l2_dist(double* point1, double* point2, int n){
  * Normalize rows of matrix U in place, according to their l2 norm
  */
 void normalize_rows(Matrix* U) {
-    int i = 0, j = 0;
-    float norm_factor = 1;
+    int i, j;
+    float norm_factor;
     for (i = 0; i < U->n; i++) {
         norm_factor = l2_norm(U->array[i], U->m);
         for (j = 0; j < U->m; j++) {
@@ -720,12 +578,6 @@ EigenVec get_eigen_vec(Eigen* eigen, int i) {
     return vec_i;
 }
 
-/**
- * free the resources used by a single EigenVec
- */
-void free_eigenvec(EigenVec *vec) {
-    free(vec->vector);
-}
 
 /**
  * free the resources used n EigenVectors;
@@ -741,7 +593,7 @@ void free_eigenvecs(EigenVec *vec, int n) {
  * Representing the Eigen matrix as an array of EigenVecs
  */
 void eigen_to_vecs(Eigen* eigen, EigenVec *eigenvecs) {
-    int i = 0;
+    int i ;
     for (i = 0; i < eigen->n; i++) {
         eigenvecs[i] = get_eigen_vec(eigen, i);
     }
@@ -766,7 +618,7 @@ Eigen vecs_to_eigen(EigenVec* vecs, int n) {
     }
     eigen.eigvects = sorted_eigenmat;
     eigen.n = n;
-    
+
     return eigen;
 }
 
@@ -784,9 +636,9 @@ void BottomUpMerge(EigenVec* source_array, int left, int right, int end, EigenVe
             i = i + 1;
         } else {
             dest_array[k] = source_array[j];
-            j = j + 1;    
+            j = j + 1;
         }
-    } 
+    }
 }
 
 /**
@@ -826,9 +678,9 @@ Eigen sort_eigen(Eigen* eigen) {
     custom_assert(source_eigenvecs != NULL);
     dest_eigenvecs = calloc(eigen->n, sizeof(EigenVec));
     custom_assert(dest_eigenvecs != NULL);
-    
+
     eigen_to_vecs(eigen, source_eigenvecs);
-    
+
     eigenvec_mergesort(source_eigenvecs, eigen->n, dest_eigenvecs);
 
     sorted_eigen = vecs_to_eigen(dest_eigenvecs, eigen->n);
@@ -900,9 +752,9 @@ Eigen jacobi_algorithm(Matrix* mat){
  */
 int calc_eigengap_heuristic(Eigen* eigen) {
     double max_delta = 0;
-    double delta = 0;
+    double delta;
     int max_delta_k = 0;
-    int i = 0;
+    int i;
     int limit = floor(eigen->n/2);
 
     /* find the largest delta */
@@ -990,20 +842,20 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
     int* point_assignment;
     int* assignment_count;
     int i, j, centroid_idx;
-    
+
     for (i = 0; i < MAX_ITER; i++) {
         point_assignment = calloc(data->n, sizeof(int));
         assignment_count = calloc(prior_centroids.n, sizeof(int));
         custom_assert(point_assignment != NULL);
         custom_assert(assignment_count != NULL);
-        
+
         /* assign a closest centroid to each data point */
         for (j = 0; j < data->n; j++) {
             centroid_idx = assign_point_centroids(data->array[j], &prior_centroids);
             point_assignment[j] = centroid_idx;
             assignment_count[centroid_idx]++;
         }
-        
+
         centroids = update_centroids(data, point_assignment, assignment_count);
 
         free(assignment_count);
@@ -1035,7 +887,7 @@ Matrix get_points(Matrix *data, int k) {
 }
 
 void print_array(double* array, int n) {
-    int i = 0;
+    int i;
     for (i = 0; i < n; i++) {
         if (((array[i] )>-0.00005) &&(array[i]<=0)){
             printf("%.4f",0.0);
@@ -1050,296 +902,7 @@ void print_array(double* array, int n) {
     printf("\n");
 }
 
-/*********************************************************************************/
-/******************************* **  Tests *************************************/
-/*********************************************************************************/
 
-/* Tests for Matrix Operations */
-void test_transpose_and_copy(){
-    Matrix A = zeros(3,3), A_t, B, B_t;
-    printf("--------------------------------------------------\n");
-    printf("---Tests for Transpose and copy Functions----\n");
-    printf("--------------------------------------------------\n");
-    A.array[0][0] = 1;
-    A.array[0][1] = 2;
-    A.array[0][2] = 3;
-    A.array[1][0] = 4;
-    A.array[1][1] = 5;
-    A.array[1][2] = 6;
-    A.array[2][0] = 7;
-    A.array[2][1] = 8;
-    A.array[2][2] = 9;
-
-
-    printf("This is A:\n");
-    print_mat(&A);
-    printf("\n");
-    printf("This is Trasnpose(A):\n");
-
-    A_t = transpose(&A);
-    print_mat(&A_t);
-    printf("\n");
-
-    B = mat_copy(&A);
-    printf("This is B= mat_copy(A):\n");
-    print_mat(&B);
-    printf("\n");
-
-    B_t = mat_copy(&A_t);
-    printf("This is B.T= mat_copy(A.T):\n");
-    print_mat(&B);
-    printf("\n");
-
-    free_mat(&A);
-    free_mat(&A_t);
-    free_mat(&B);
-    free_mat(&B_t);
-
-}
-void test_mat_mul(){
-    Matrix A = zeros(2,4), B, C;
-    printf("--------------------------------------------------\n");
-    printf("---Tests for Matrix Multiplication----\n");
-    printf("--------------------------------------------------\n");
-    A.array[0][0] = 3;
-    A.array[0][1] = 2;
-    A.array[0][2] = 1;
-    A.array[0][3] = 5;
-
-    A.array[1][0] = 9;
-    A.array[1][1] = 1;
-    A.array[1][2] = 3;
-    A.array[1][3] = 0;
-
-
-    B = zeros(4,3);
-    B.array[0][0] = 2;
-    B.array[0][1] = 9;
-    B.array[0][2] = 0;
-
-    B.array[1][0] = 1;
-    B.array[1][1] = 3;
-    B.array[1][2] = 5;
-
-    B.array[2][0] = 2;
-    B.array[2][1] = 4;
-    B.array[2][2] = 7;
-
-    B.array[3][0] = 8;
-    B.array[3][1] = 1;
-    B.array[3][2] = 5;
-
-    printf("This is C= A*B (Matrix multiplication):\n");
-    C = mat_mul(&A,&B);
-    print_mat(&C);
-    printf("\n");
-}
-void test_mat_scalar_mul(){
-    Matrix B = zeros(4,3), A;
-    printf("--------------------------------------------------\n");
-    printf("---Tests for Scalar and matrix multiplication----\n");
-    printf("--------------------------------------------------\n");
-    B.array[0][0] = 2;
-    B.array[0][1] = 9;
-    B.array[0][2] = 0;
-
-    B.array[1][0] = 1;
-    B.array[1][1] = 3;
-    B.array[1][2] = 5;
-
-    B.array[2][0] = 2;
-    B.array[2][1] = 4;
-    B.array[2][2] = 7;
-
-    B.array[3][0] = 8;
-    B.array[3][1] = 1;
-    B.array[3][2] = 5;
-
-    printf("This is the Matrix B:\n");
-    print_mat(&B);
-    printf("\n");
-
-    printf("This is C= 4*B (Matrix multiplication):\n");
-    A = mat_scalar_mul(&B,4);
-    print_mat(&A);
-    printf("\n");
-}
-void test_power_diag(){
-    Matrix A = zeros(3,3), B;
-    printf("--------------------------------------------------\n");
-    printf("---Tests for Power Diagonal----\n");
-    printf("--------------------------------------------------\n");
-    A.array[0][0] = 1;
-    A.array[0][1] = 2;
-    A.array[0][2] = 3;
-    A.array[1][0] = 4;
-    A.array[1][1] = 5;
-    A.array[1][2] = 6;
-    A.array[2][0] = 7;
-    A.array[2][1] = 8;
-    A.array[2][2] = 9;
-
-
-    printf("This is the Matrix A:\n");
-    print_mat(&A);
-    printf("\n");
-
-
-    printf("This is the Matrix B = sqrt(A) :\n");
-    B = mat_pow_diagonal(&A,0.5);
-    print_mat(&B);
-    printf("\n");
-
-
-}
-void test_mat_iden(){
-    int i;
-    Matrix I;
-    printf("--------------------------------------------------\n");
-    printf("-----Tests for Identity----\n");
-    printf("--------------------------------------------------\n");
-
-    for (i=1; i<=5;i++){
-        I = mat_identity(i);
-        printf("This is the identity(%d) Matrix:\n",i);
-        print_mat(&I);
-        printf("\n");
-        /* free_mat(&I); */
-    }
-
-}
-void test_sums(){
-    Matrix A = zeros(3,3), squared, B, C, D;
-    double result;
-    A.array[0][0] = 1;
-    A.array[0][1] = 2;
-    A.array[0][2] = 3;
-    A.array[1][0] = 4;
-    A.array[1][1] = 5;
-    A.array[1][2] = 6;
-    A.array[2][0] = 7;
-    A.array[2][1] = 8;
-    A.array[2][2] = 9;
-
-    squared = mat_square(&A);
-    B = mat_copy(&A);
-    C = mat_sub(&squared,&B);
-    result =  mat_total_sum(&C);
-    printf("The sum of all elements is (should be 240): %f \n",result);
-    D = mat_add(&C,&A);
-    result = mat_total_sum(&D);
-    printf("The sum of all elements is (should be 285): %f \n",result);
-    free_mat(&A);
-    free_mat(&B);
-    free_mat(&C);
-    free_mat(&D);
-    free_mat(&squared);
-}
-void all_mat_tests(){
-    test_transpose_and_copy();
-    test_mat_mul();
-    test_mat_scalar_mul();
-    test_power_diag();
-    test_mat_iden();
-    test_sums();
-}
-
-/* Tests for algorithm (need to compare with python implemantation */
-
-void mat_to_file(Matrix* mat, char* file_name){
-    FILE* fptr;
-    char* pre = "C:\\Users\\Tomer\\CLionProjects\\spectral_k_means\\tests\\";
-    char name [1024] = {0};
-    int i, j, n, m;
-    strcat(name,pre);
-    strcat(name,file_name);
-
-    fptr = fopen(name,"w");
-    
-    n= mat->n;
-    m= mat->m;
-
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            fprintf(fptr,"%f", mat->array[i][j]);
-            if (j != m - 1) {
-                fprintf(fptr,",");
-            }
-        }
-        fprintf(fptr , "\n");
-    }
-    fclose(fptr);
-}
-void array_to_file(double * mat,int n ,char* file_name){
-    FILE* fptr;
-    char* pre = "C:\\Users\\Tomer\\CLionProjects\\spectral_k_means\\tests\\";
-    char name [1024] = {0};
-    int i;
-    strcat(name,pre);
-    strcat(name,file_name);
-    fptr = fopen(name,"w");
-
-    
-
-    for (i = 0; i < n; i++) {
-            fprintf(fptr,"%f",mat[i]);
-            if (i != n - 1) {
-                fprintf(fptr,",");
-        }
-    }
-    fclose(fptr);
-}
-void test_WDH(Data* data){
-    Matrix W, D, D_half, l_norm, P;
-    Eigen eigen;
-    W  = build_W(data);
-    mat_to_file(&W,"out_w.txt");
-    D  = build_D(&W);
-    mat_to_file(&D,"out_D.txt");
-    D_half  = build_D_half(&D);
-    mat_to_file(&D_half,"out_D_half.txt");
-    l_norm = laplacian(&D_half,&W);
-    mat_to_file(&l_norm,"out_lap.txt");
-    P = build_P(&l_norm);
-    mat_to_file(&P,"out_p.txt");
-    eigen = jacobi_algorithm(&l_norm);
-    mat_to_file(&eigen.eigvects,"out_eigvects.txt");
-    array_to_file(eigen.eigvals,eigen.eigvects.n,"out_eigvals.txt");
-
-
-
-
-    /*free_mat(&W);
-    free_mat(&D);
-    free_mat(&D_half);
-    free_mat(&l_norm);
-    free_mat(&P);
-    free_eigen(&eigen);*/
-}
-void test_off_diag (){
-    Matrix mat = zeros(5,5);
-    int i;
-    int j;
-    int t=1;
-    int c =1;
-    int n = mat.n;
-    Index idx;
-
-    for (i=0; i<n; i++){
-        for (j=i; j<n; j++){
-            mat.array [i][j] = t*c*sqrt(5);
-            mat.array [j][i] = t*c*sqrt(5);
-            t = t*-1;
-            c++;
-        }
-    }
-    printf("This is Mat: \n");
-    print_mat(&mat);
-    idx = off_diagonal_index(&mat);
-    printf("largest value is in index (%d,%d): \n", idx.x, idx.y);
-}
-
-/******************************************** */
 
 /**
  * Translate a string format goal to the goal enum
@@ -1428,7 +991,7 @@ Matrix calc_T(Data* data, int k) {
     sorted = sort_eigen(&eigen);
     free_eigen(&eigen);
     eigen = sorted;
-    
+
     if (k == 0) {
         k = calc_eigengap_heuristic(&eigen) + 1;
     }
@@ -1522,10 +1085,9 @@ int main(int argc, char** argv) {
         case other:
             printf("Invalid Input!");
             return 1;
-            break;
     }
     print_mat(&target_mat);
     free_mat(&target_mat);
-    
+
     return 0;
 }

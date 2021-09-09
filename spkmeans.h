@@ -1,5 +1,5 @@
 #define MAX_POINTS 50
-#define MAX_DIMS  10
+#define MAX_DIMS  50
 #define LINE_LENGTH 1024
 #define EPSILON 1e-15
 #define MAX_JACOBI_ITER 100
