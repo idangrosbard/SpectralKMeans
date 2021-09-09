@@ -839,7 +839,7 @@ int assign_point_centroids(double* vector, Matrix* centroids) {
  * data - matrix of size (n,k), each row is a point in data
  */
 Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
-    Matrix centroids, prior_centroids = mat_copy(init_centroids);
+    Matrix centroids, prior_centroids = *init_centroids;
     int* point_assignment;
     int* assignment_count;
     int i, j, centroid_idx;
