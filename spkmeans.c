@@ -864,6 +864,7 @@ Matrix converge_centroids(Matrix *data, Matrix *init_centroids) {
         /* if the centroids converged - stop regression */
         if (did_converge(&prior_centroids, &centroids)) {
             break;
+            free_mat(&prior_centroids);
         }
 
         free_mat(&prior_centroids);
