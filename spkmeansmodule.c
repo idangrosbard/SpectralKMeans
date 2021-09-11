@@ -114,7 +114,6 @@ static PyObject* get_T(PyObject *self, PyObject *args) {
 
     if ((k < 0) || (k >= data.n)) {
         printf("Invalid Input!");
-        free_mat(&T);
         Py_RETURN_NONE;
     }
     
