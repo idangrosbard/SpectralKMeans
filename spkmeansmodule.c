@@ -118,7 +118,6 @@ static PyObject* get_T(PyObject *self, PyObject *args) {
     }
     
     T = calc_T(&data, k);
-
     py_T = matrix_to_list(&T);
     custom_assert(py_T != NULL);
     free_mat(&T);

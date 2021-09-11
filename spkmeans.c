@@ -5,6 +5,23 @@
 #include "spkmeans.h"
 
 /**
+ * Parse a data struct to a matrix
+ */
+Matrix data_to_matrix(Data* data) {
+    int i;
+    int j;
+    Matrix mat;
+    mat = zeros(data->n, data->m);
+    for (i = 0; i < mat.n; i++) {
+        for (j = 0; j < mat.m; j++) {
+            mat.array[i][j] = data->array[i][j];
+        }
+    }
+
+    return mat;
+}
+
+/**
  * custom assert function, if condition is false -> print error and close the program
  */
 void custom_assert(int condition) {
@@ -974,22 +991,23 @@ Matrix calc_laplacian(Data* data) {
 }
 
 /**
- * Calculate the eigenvectors and eigenvalues of the LNorm of the given data
+ * Calculate the eigenvectors and eigenvalues of the a symmetrical matrix represented in the data struct
  */
 Eigen calc_eigen(Data* data) {
     Eigen eigen;
-    Matrix lnorm = calc_laplacian(data);
-    eigen = jacobi_algorithm(&lnorm);
-    free_mat(&lnorm);
+    Matrix symmetrical_mat = data_to_matrix(data);
+    eigen = jacobi_algorithm(&symmetrical_mat);
+    free_mat(&symmetrical_mat);
     return eigen;
 }
 /**
  * Calculate the T matrix of the given data
  */
 Matrix calc_T(Data* data, int k) {
-    Matrix points;
+    Matrix points, laplacian;
     Eigen sorted, eigen;
-    eigen = calc_eigen(data);
+    laplacian = calc_laplacian(data);
+    eigen = jacobi_algorithm(&laplacian);
     sorted = sort_eigen(&eigen);
     free_eigen(&eigen);
     eigen = sorted;
@@ -1001,6 +1019,7 @@ Matrix calc_T(Data* data, int k) {
     normalize_rows(&points);
 
     free_eigen(&eigen);
+    free_mat(&laplacian);
 
     return points;
 }

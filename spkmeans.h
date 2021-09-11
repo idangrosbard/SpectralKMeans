@@ -61,11 +61,6 @@ typedef struct EigenVec {
 /**************************************************/
 
 /**
- * Prints all points in data matrix in format (separated by commas and each point in new line)
- */
-void print_data(Data *mat);
-
-/**
  * Load coordinates data from path 
  * Assumes coordinates are in csv format, with each point in a different line
  */
@@ -73,9 +68,6 @@ Data load_data(char *path);
 
 /* given index i returns the i'th row in the Data type data */
 double* data_get_row (Data* data, int i);
-
-/* given index j returns the j'th row in the Data type data */
-double* data_get_col (Data* data, int j);
 
 /* Parse Data object to Matrix */
 Matrix data_to_matrix(Data* data);
@@ -109,37 +101,19 @@ Matrix mat_window_copy(Matrix* A, int n1, int n2, int m1, int m2);
 Matrix mat_copy(Matrix* A);
 
 /* Given a Matrix A, performs power operation of all diagonal */
-Matrix mat_pow_diagonal(Matrix* A, double power);
-
-/* returns true if and only if for all i,j A[i,j]=B[i,j] */
-bool mat_is_equal(Matrix* A,Matrix* B);
+Matrix mat_pow_diagonal(Matrix* A, double power);;
 
 /* Performs Matrix multiplication */
 Matrix mat_mul (Matrix* A, Matrix* B);
 
-/* Multiply a matrix by a scalar (entry by entry) */
-Matrix mat_scalar_mul(Matrix* A, double scalar);
-
 /* Returns the identity Matrix I[i,j]=0 if i!=j and I[i,i] = 1 */
 Matrix mat_identity (int n);
-
-/* Returns a matrix C s.t C[i,j]=A[i,j]+B[i,j] for all i,j. Meaning C = A+B */
-Matrix mat_add (Matrix* A, Matrix*B);
 
 /* Returns a matrix C s.t C[i,j]=A[i,j]-B[i,j] for all i,j. Meaning C = A-B */
 Matrix mat_sub (Matrix* A, Matrix* B);
 
-/* returns a Matrix B s.t B[i,j] = A[i,j]^2 for all i,j. */
-Matrix mat_square(Matrix* A);
-
 /* returns a double which is the sum of all entries in the row_index row in the matrix */
 double mat_sum_by_row(Matrix* A, int row_index);
-
-/* returns a double which is the sum of all entries in the row_index row in the matrix */
-double mat_total_sum (Matrix* A);
-
-/* given index i returns the i'th row in the Matrix A */
-double* mat_get_row (Matrix* A, int i);
 
 /* given index j returns the j'th row in the Matrix A */
 double* mat_get_col (Matrix* A, int j);
@@ -208,11 +182,6 @@ void free_eigen(Eigen* eigen);
  * i - the index of the i'th eigenvector to retrieve
  */
 EigenVec get_eigen_vec(Eigen* eigen, int i);
-
-/**
- * free the resources used by a single EigenVec
- */
-void free_eigenvec(EigenVec *vec);
 
 /*Calculate A_prime according to the definition in project based on indices (not matrix multiplication)*/
 Matrix calc_A_prime(Matrix* A);
@@ -335,7 +304,7 @@ Matrix calc_D_half(Data* data);
 Matrix calc_laplacian(Data* data);
 
 /**
- * Calculate the eigenvectors and eigenvalues of the LNorm of the given data
+ * Calculate the eigenvectors and eigenvalues of a symmetrical matrix (represnted in the data)
  */
 Eigen calc_eigen(Data* data);
 
