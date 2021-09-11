@@ -101,7 +101,7 @@ Matrix mat_window_copy(Matrix* A, int n1, int n2, int m1, int m2);
 Matrix mat_copy(Matrix* A);
 
 /* Given a Matrix A, performs power operation of all diagonal */
-Matrix mat_pow_diagonal(Matrix* A, double power);;
+Matrix mat_pow_diagonal(Matrix* A, double power);
 
 /* Performs Matrix multiplication */
 Matrix mat_mul (Matrix* A, Matrix* B);
