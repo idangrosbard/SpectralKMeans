@@ -48,6 +48,7 @@ def call_capi(k, goal, input_path):
         spkmeans.calc_goal(k, goal, input_path)
     if goal == 'spk':
         T = spkmeans.get_T(k, input_path)
+        print(T)
         T_arr = np.array(T)
         k = T_arr.shape[1]
         centroids = calc_centroids(T_arr, k)

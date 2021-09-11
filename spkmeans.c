@@ -648,7 +648,7 @@ void BottomUpMerge(EigenVec* source_array, int left, int right, int end, EigenVe
     /* While there are elements in the left or right runs... */
     for (k = left; k < end; k++) {
         /* If left run head exists and is <= existing right run head. */
-        if (i < right && ((j >= end) || (source_array[i].value <= source_array[j].value))) {
+        if ((i < right) && ((j >= end) || (source_array[i].value <= source_array[j].value))) {
             dest_array[k] = source_array[i];
             i = i + 1;
         } else {
@@ -1030,7 +1030,7 @@ bool is_digit(char *str , int len) {
     char ch;
     for (i=0;i<len;i++){
         ch = str[i];
-        if (ch<'0' || ch>'9'){
+        if ((ch<'0') || (ch>'9')){
             return false;
         }
     }
@@ -1075,7 +1075,7 @@ int main(int argc, char** argv) {
 
     /* Load Data and check whether data is ok and k is small enough */
     data = load_data(data_path);
-    if (k < 0 || k >= data.n) {
+    if ((k < 0) || (k >= data.n)) {
         printf("Invalid Input!");
         return 1;
     }
